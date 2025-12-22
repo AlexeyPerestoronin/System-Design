@@ -25,7 +25,7 @@
       1. Search DB
    2. Time Series Data Bases:
       1. Influx
-   3. [Hadoop](./database%20management%20systems/Hadoop.md)
-   4. [Amazon S3](./database%20management%20systems/Amazon%20S3.md)
+   3. [Hadoop](./known%20DBMS/Hadoop.md)
+   4. [Amazon S3](./known%20DBMS/Amazon%20S3.md)
    5. Azure Blob
    6. Google Cloud Storage
