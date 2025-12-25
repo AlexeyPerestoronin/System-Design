@@ -24,22 +24,63 @@
 
 ## Happy Path:
 1. Пользователь создаёт новую доску, или подключается к уже созданной:
+    Создание новой доски:
+    ```txt
+    [User's App] --(POST /api/desk/create_new? { "name": STRING })--> [Entry Point]  
+        1. [Entry Point] --(запрос создания новой доски)--> [Desk Management Service]
+        2. [Desk Management Service] --(запусти сессию коллаборации для созданной доски)--> [Collaboration Service]
+        3. [Collaboration Service] --(запустить сессию коллаборации для созданной доски и отправить пользователю URL для подключения)--> [Entry Point]
+    [Entry Point] --(200 {"collaboration_session": STRING})--> [User's App]
     ```
-    [User's App] --(POST /api/connect_to_desk? { "create_new": BoolOpt, "desk_id": NumberOpt})--> [Entry Point]  
-        [Entry Point] --(найди или создай новую доску для работы)--> [Desk Management Service]
-            [Desk Management Service] --(запусти сессию коллаборации)--> [Collaboration Service]
-                [Collaboration Service] --(отправь пользователю ссылку на подключение к сессии для работы над доской)--> [Entry Point]
-                    [Entry Point] --(HTTP RESPONSE? {"web_socket_connection": String})--> [User's App]
+    Подключение к существующей доске:
+    ```txt
+    [User's App] --(POST /api/desk/connect_to? { "name": STRING })--> [Entry Point]  
+        4. [Entry Point] --(запрос поиска доски)--> [Desk Management Service]
+        5. [Desk Management Service] --(запусти сессию коллаборации для найденной доски)--> [Collaboration Service]
+        6. [Collaboration Service] --(запустить сессию коллаборации для найденной доски и отправить пользователю URL для подключения)--> [Entry Point]
+    [Entry Point] --(201 {"collaboration_session": STRING})--> [User's App]
     ```
 2. Работает с доской внося изменения (возможно в режиме коллаборации с другими пользователями)
-3. Завершил работу над  доской
-
-```
-1. [User's App] --(WebSocketConnection)--> [Collaboration Server]
-```
+    ```txt
+    [User's App] --(отправка diff для рабочей доски через WebSocket)--> [Collaboration Service]
+    ```
+3. Завершил работу над  доской  
+    Пользователю ничего делать не надо, т.к. сессия коллаборации завершится автоматически по прошествии определённого времени в отсутствии новых изменений.
+    ```txt
+    [Collaboration Service] --(завершение сессии коллаборации + передача доски над которой завершена работа под дальнейшее управление)-->[Desk Management Service]
+    [Desk Management Service] --(запрос на разрешение конфликтов, если если таковые есть)--> [Desk Collisions Service]
+    [Desk Management Service] --(отправка доски на долгосрочное хранение)--> [Desk DB]
+    ```
 
 ---
 
 ![](./stiсker%20collaboration%20desk.drawio.png)
 
 ---
+
+# System Services
+## Entry Point
+Сервис внешнего доступа к Системе:
+* **Load Balancer**:
+    * управляет количеством запущенных экземпляров Collaboration Services в зависимости от количества активных сессий
+* **API Gateway**
+
+## Message Queue
+Глобальная  очередь сообщений системы с возможностью отслеживания статуса сообщений с нотификацией отправителя.
+
+## Business Logic Services:
+### Collaboration Service (CS)
+* управляет сессией (возможно несколькими) коллаборации:
+    * инициации сессии
+    * отслеживание и синхронизация изменений пользователей в процессе работы над доской
+    * завершение сессии в случае разрыва всех WebSocket соединений с пользователями (либо по timeout в случае потери связи)
+
+### Desk Collisions Service (DCS)
+* разрешает коллизии, возникающие в процессе работы над доской или после
+
+### Desk Management Service (DMS)
+* управляет досками
+
+## Data Base Services:
+### Desk DB
+* хранит доски
