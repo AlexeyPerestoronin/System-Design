@@ -24,32 +24,77 @@
 
 ## Happy Path:
 1. Пользователь создаёт новую доску, или подключается к уже созданной:
-    Создание новой доски:
     ```txt
-    [User's App] --(POST /api/desk/create_new? { "name": STRING })--> [Entry Point]  
-        1. [Entry Point] --(запрос создания новой доски)--> [Desk Management Service]
-        2. [Desk Management Service] --(запусти сессию коллаборации для созданной доски)--> [Collaboration Service]
-        3. [Collaboration Service] --(запустить сессию коллаборации для созданной доски и отправить пользователю URL для подключения)--> [Entry Point]
-    [Entry Point] --(200 {"collaboration_session": STRING})--> [User's App]
-    ```
-    Подключение к существующей доске:
-    ```txt
-    [User's App] --(POST /api/desk/connect_to? { "name": STRING })--> [Entry Point]  
-        4. [Entry Point] --(запрос поиска доски)--> [Desk Management Service]
-        5. [Desk Management Service] --(запусти сессию коллаборации для найденной доски)--> [Collaboration Service]
-        6. [Collaboration Service] --(запустить сессию коллаборации для найденной доски и отправить пользователю URL для подключения)--> [Entry Point]
-    [Entry Point] --(201 {"collaboration_session": STRING})--> [User's App]
+    # Клиент-1 запрашивает доску
+    [User's App]
+        POST /api/desk/init HTTP/1.1
+        Content-Type: application/json
+        { "name": STRING, "create_new": BOOL }
+    [Entry Point]  
+    | 1. [Entry Point] --(запрос создания новой доски/запрос поиска доски)--> [Desk Management Service]
+    | 2. [Desk Management Service] --(запусти сессию коллаборации для созданной доски)--> [Collaboration Service]
+    | 3. [Collaboration Service] --(запустить сессию коллаборации для созданной доски и отправить пользователю URL для подключения)--> [Entry Point]
+    # Сервис отвечает, что доска найдена/создана и возвращает её данные и токен сессии коллаборации
+    [Entry Point]
+        HTTP/1.1 200 OK
+        Content-Type: application/json
+        { "desk": Desk Binary Data as STRING, "session_key": XXX-XXX-XXX }
+    [User's App]
+    # Клиент-1 запрашивает переход на WebSocket пля работы в режиме коллаборации
+    [User's App]
+        GET /api/desk/collaboration/init HTTP/1.1
+        Upgrade: websocket
+        WebSocket-Session-Key: XXX-XXX-XXX
+    [Entry Point]
+    # Сервис подтверждает переход на обмен данными через WebSocket в рамках созданной сессии коллаборации
+    [Entry Point]
+        HTTP/1.1 101 Switching Protocols
+        Upgrade: websocket
+        WebSocket-Session-Accept: XXX-XXX-XXX
+    [User's App]
     ```
 2. Работает с доской внося изменения (возможно в режиме коллаборации с другими пользователями)
     ```txt
-    [User's App] --(отправка diff для рабочей доски через WebSocket)--> [Collaboration Service]
+    # Клиент-1 отправляет на Сервер diff рабочей доски
+    [User's App]
+        PATCH /api/desk/collaboration/sync HTTP/1.1
+        Upgrade: websocket
+        WebSocket-Session-Key: XXX-XXX-XXX
+        R-User-ID: client-1-ID
+    [Collaboration Service]
+    # Сервер уведомляет Клиента, что diff получен
+    [Entry Point]
+        HTTP/1.1 221 Desk Updated
+        Upgrade: websocket
+        Content-Type: application/json
+        { "collision_status": Status as STRING }
+    [User's App]
+    # Сервер отправляет изменения остальным Клиентам, участвующим в сессии коллаборации, данные об изменениях внесённых Клиентом-1
+    [Entry Point]
+        PATCH /api/desk/collaboration/sync HTTP/1.1
+        Upgrade: websocket
+        WebSocket-Session-Key: XXX-XXX-XXX
+        R-User-ID: client-1-ID
+    [Users' App]
     ```
 3. Завершил работу над  доской  
-    Пользователю ничего делать не надо, т.к. сессия коллаборации завершится автоматически по прошествии определённого времени в отсутствии новых изменений.
+    Сессия коллаборации завершается либо автоматически по прошествии определённого времени без внесения изменений со стороны какого-либо из пользователей, либо, если пользователь создатель доски отправил HTTP запрос на закрытие сессии коллаборации:
     ```txt
-    [Collaboration Service] --(завершение сессии коллаборации + передача доски над которой завершена работа под дальнейшее управление)-->[Desk Management Service]
-    [Desk Management Service] --(запрос на разрешение конфликтов, если если таковые есть)--> [Desk Collisions Service]
-    [Desk Management Service] --(отправка доски на долгосрочное хранение)--> [Desk DB]
+    [User's App]
+        PATCH /api/desk/collaboration/finish HTTP/1.1
+        WebSocket-Session-Key: XXX-XXX-XXX
+        Content-Type: application/json
+        { "diff": STRING }
+    [Collaboration Service]
+    | 1. [Collaboration Service] --(завершение сессии коллаборации + передача доски над которой завершена работа под дальнейшее управление)-->[Desk Management Service]
+    | 2. [Desk Management Service] --(запрос на разрешение конфликтов, если если таковые есть)--> [Desk Collisions Service]
+    | 3. [Desk Management Service] --(отправка доски на долгосрочное хранение)--> [Desk DB]
+    [Collaboration Service]
+        HTTP/1.1 200 OK
+        WebSocket-Session-Key: XXX-XXX-XXX
+        Content-Type: application/json
+        { "status": STRING }
+    [User's App]
     ```
 
 ---

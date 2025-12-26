@@ -148,6 +148,7 @@ C9 5C              # Dest Port: 51548 (клиентский порт)
 ```
 </details>
 
+---
 
 <details>
 <summary>Алгоритм чтения бинарных HTTP-данных</summary>
