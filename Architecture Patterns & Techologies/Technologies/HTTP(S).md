@@ -225,10 +225,10 @@ HTTP методы определяют действие, которое нужн
 ### Заголовки (Headers):
 [Стандартные (RFC) заголовки](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers):
 1. Формат данных: `Content-Type: application/json`
-0. Аутентификация: `Authorization: Bearer token123`
-0. Кэширование: `Cache-Control: max-age=3600`
-0. Информация о клиенте: `User-Agent: Mozilla/5.0`
-0. и другие... (количество не ограничено)
+3. Аутентификация: `Authorization: Bearer token123`
+4. Кэширование: `Cache-Control: max-age=3600`
+5. Информация о клиенте: `User-Agent: Mozilla/5.0`
+6. и другие... (количество не ограничено)
 
 Можно создавать собственные с префиксом X- (по соглашению):
 - X-Custom-Header: myvalue

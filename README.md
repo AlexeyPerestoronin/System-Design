@@ -69,5 +69,8 @@
 ## [Taxi Call Service](./System%20Examples/Taxi%20Call%20Service/README.md)
 ![](./System%20Examples/Taxi%20Call%20Service/taxi%20call%20service.drawio.png)
 
+## [A/B Testing](./System%20Examples/A-B%20Testing/README.md)
+![](./System%20Examples/A-B%20Testing/a-b%20testing.drawio.png)
+
 ## [Sticker Collaboration Desk](./System%20Examples/Sticker%20Collaboration%20Desk/README.md)
 ![](./System%20Examples/Sticker%20Collaboration%20Desk/stiсker%20collaboration%20desk.drawio.png)
