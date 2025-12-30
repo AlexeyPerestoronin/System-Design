@@ -21,6 +21,7 @@
 * Дополнительно:
     * Должна быть возможность работать offline, а также в ситуации с плохим соединением.
 
+![](./stiсker%20collaboration%20desk.drawio.png)
 
 ## Happy Path:
 1. Пользователь создаёт новую доску, или подключается к уже созданной:
@@ -96,12 +97,6 @@
         { "status": STRING }
     [User's App]
     ```
-
----
-
-![](./stiсker%20collaboration%20desk.drawio.png)
-
----
 
 # System Services
 ## Entry Point
