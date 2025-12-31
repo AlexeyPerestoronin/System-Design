@@ -66,6 +66,9 @@
 
 
 # Примеры спроектированных систем
+## [Collaboration Editor](./System%20Examples/Collaboration%20Editor/README.md)
+![](./System%20Examples/Collaboration%20Editor/collaboration%20editor.drawio.png)
+
 ## [Taxi Call Service](./System%20Examples/Taxi%20Call%20Service/README.md)
 ![](./System%20Examples/Taxi%20Call%20Service/taxi%20call%20service.drawio.png)
 
