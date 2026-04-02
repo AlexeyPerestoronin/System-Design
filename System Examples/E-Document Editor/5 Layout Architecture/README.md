@@ -115,3 +115,4 @@
       2. [Работа над множеством документов](./os-artefact-representation-multy-documents.md).
       3. [Работа в режиме коллаборации](./system-collaboration-representation.md).
    3. [Описание через структуру команд Компании](./command-structure-representation.md)
+3. [Уникальная тестируемость, гарантирующая работоспособность на всех уровнях](../Testing%20Framework/README.md)

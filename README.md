@@ -66,6 +66,12 @@
 
 
 # Примеры спроектированных систем
+## [Универсальных редактор электронных документов](./System%20Examples/E-Document%20Editor/5%20Layout%20Architecture/README.md)
+![](./System%20Examples/E-Document%20Editor/5%20Layout%20Architecture/scope-responsibility-representation.png)
+
+### [+ Универсальных фреймворк автоматизации тестирования электронных документов](./System%20Examples/E-Document%20Editor/Testing%20Framework/README.md)
+![](./System%20Examples/E-Document%20Editor/Testing%20Framework/desktop-editor.drawio.png)
+
 ## [Collaboration Editor](./System%20Examples/Collaboration%20Editor/README.md)
 ![](./System%20Examples/Collaboration%20Editor/collaboration%20editor.drawio.png)
 
